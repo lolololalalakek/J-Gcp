@@ -1,6 +1,9 @@
 package uz.javacourse.jgcp.service;
 
+import uz.javacourse.jgcp.constant.enums.entity.DocumentType;
+import uz.javacourse.jgcp.constant.enums.entity.Gender;
 import uz.javacourse.jgcp.dto.request.UserRequestDto;
+import uz.javacourse.jgcp.dto.response.MarkDeceasedResponseDto;
 import uz.javacourse.jgcp.dto.response.UserResponseDto;
 
 import java.time.LocalDate;
@@ -18,5 +21,41 @@ public interface UserService {
 
     boolean isUserAlive(Long id);
 
-    UserResponseDto markUserAsDeceased(Long id, LocalDate deathDate);
+    MarkDeceasedResponseDto markUserAsDeceased(Long id, LocalDate deathDate);
+
+    // поиск по имени
+    List<UserResponseDto> searchByName(String name);
+
+    // живые vs умершие пользователи
+    List<UserResponseDto> getAllAliveUsers();
+
+    List<UserResponseDto> getAllDeceasedUsers();
+
+    long getAliveUsersCount();
+
+    long getDeceasedUsersCount();
+
+    // поиск по дате смерти
+    List<UserResponseDto> getUsersDeceasedBetween(LocalDate start, LocalDate end);
+
+    // документы
+    List<UserResponseDto> getUsersWithExpiredDocuments();
+
+    List<UserResponseDto> getUsersWithDocumentsExpiringBetween(LocalDate start, LocalDate end);
+
+    List<UserResponseDto> getUsersByDocumentType(DocumentType documentType);
+
+    // демографическая статистика
+    List<UserResponseDto> getUsersByGender(Gender gender);
+
+    long getUsersCountByGender(Gender gender);
+
+    List<UserResponseDto> getUsersByCitizenship(String citizenship);
+
+    List<UserResponseDto> getUsersByAgeRange(Integer minAge, Integer maxAge);
+
+    // комбинированные запросы
+    List<UserResponseDto> getAliveUsersWithExpiredDocuments();
+
+    List<UserResponseDto> getUsersByGenderAndAgeRange(Gender gender, Integer minAge, Integer maxAge);
 }

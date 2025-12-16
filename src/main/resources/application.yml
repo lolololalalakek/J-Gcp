@@ -2,18 +2,19 @@ spring:
   application:
     name: j-gcp
   datasource:
-    url: jdbc:postgresql://localhost:5432/jgcp_db
+    url: jdbc:postgresql://localhost:5432/j-gcp
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
   flyway:
     enabled: true
     baseline-on-migrate: true

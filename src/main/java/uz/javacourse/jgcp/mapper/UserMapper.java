@@ -2,6 +2,7 @@ package uz.javacourse.jgcp.mapper;
 
 import org.springframework.stereotype.Component;
 import uz.javacourse.jgcp.dto.request.UserRequestDto;
+import uz.javacourse.jgcp.dto.response.MarkDeceasedResponseDto;
 import uz.javacourse.jgcp.dto.response.UserResponseDto;
 import uz.javacourse.jgcp.entity.User;
 
@@ -10,19 +11,19 @@ public class UserMapper {
 
     public User toEntity(UserRequestDto requestDto) {
         return User.builder()
-                .fullName(requestDto.getFullName())
-                .address(requestDto.getAddress())
-                .phoneNumber(requestDto.getPhoneNumber())
-                .email(requestDto.getEmail())
-                .photoUrl(requestDto.getPhotoUrl())
-                .pinfl(requestDto.getPinfl())
-                .age(requestDto.getAge())
-                .gender(requestDto.getGender())
-                .documentType(requestDto.getDocumentType())
-                .issueDate(requestDto.getIssueDate())
-                .expiryDate(requestDto.getExpiryDate())
-                .citizenship(requestDto.getCitizenship())
-                .deathDate(requestDto.getDeathDate())
+                .fullName(requestDto.fullName())
+                .address(requestDto.address())
+                .phoneNumber(requestDto.phoneNumber())
+                .email(requestDto.email())
+                .photoUrl(requestDto.photoUrl())
+                .pinfl(requestDto.pinfl())
+                .age(requestDto.age())
+                .gender(requestDto.gender())
+                .documentType(requestDto.documentType())
+                .issueDate(requestDto.issueDate())
+                .expiryDate(requestDto.expiryDate())
+                .citizenship(requestDto.citizenship())
+                .deathDate(requestDto.deathDate())
                 .build();
     }
 
@@ -41,6 +42,14 @@ public class UserMapper {
                 .issueDate(user.getIssueDate())
                 .expiryDate(user.getExpiryDate())
                 .citizenship(user.getCitizenship())
+                .deathDate(user.getDeathDate())
+                .build();
+    }
+
+    public MarkDeceasedResponseDto toMarkDeceasedResponseDto(User user) {
+        return MarkDeceasedResponseDto.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
                 .deathDate(user.getDeathDate())
                 .build();
     }

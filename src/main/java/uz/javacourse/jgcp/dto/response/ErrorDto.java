@@ -1,22 +1,18 @@
 package uz.javacourse.jgcp.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class ErrorDto {
-
-    private String message;
-    private int status;
-    private LocalDateTime timestamp;
-    private String path;
+public record ErrorDto(
+        // сообщение об ошибке
+        String message,
+        // http статус код ошибки
+        int status,
+        // время возникновения ошибки
+        LocalDateTime timestamp,
+        // путь запроса, который вызвал ошибку
+        String path
+) {
 }

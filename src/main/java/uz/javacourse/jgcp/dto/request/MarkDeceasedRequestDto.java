@@ -1,21 +1,16 @@
 package uz.javacourse.jgcp.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class MarkDeceasedRequestDto {
+public record MarkDeceasedRequestDto(
+        // дата смерти пользователя
+        @NotNull(message = "Death date is required")
+        @PastOrPresent(message = "Death date must be in the past or present")
+        LocalDate deathDate){
 
-    @NotNull
-    private LocalDate deathDate;
 }

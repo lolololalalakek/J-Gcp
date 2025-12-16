@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceLoggingAspect {
 
-    @Before("execution(* uz.javacourse.jgcp.service.*.*(..))")
+    @Before("execution(* uz.javacourse.jgcp.service..*.*(..))")
     public void logBeforeService(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
@@ -21,7 +21,7 @@ public class ServiceLoggingAspect {
         log.debug("Service method called: {}.{}", className, methodName);
     }
 
-    @AfterReturning("execution(* uz.javacourse.jgcp.service.*.*(..))")
+    @AfterReturning("execution(* uz.javacourse.jgcp.service..*.*(..))")
     public void logAfterReturningService(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
@@ -29,7 +29,7 @@ public class ServiceLoggingAspect {
         log.debug("Service method completed: {}.{}", className, methodName);
     }
 
-    @AfterThrowing(pointcut = "execution(* uz.javacourse.jgcp.service.*.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* uz.javacourse.jgcp.service..*.*(..))", throwing = "ex")
     public void logAfterThrowingService(JoinPoint joinPoint, Exception ex) {
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();

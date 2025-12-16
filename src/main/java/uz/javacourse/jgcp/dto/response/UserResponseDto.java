@@ -1,34 +1,40 @@
 package uz.javacourse.jgcp.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import uz.javacourse.jgcp.constant.enums.entity.DocumentType;
 import uz.javacourse.jgcp.constant.enums.entity.Gender;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class UserResponseDto {
-
-    private Long id;
-    private String fullName;
-    private String address;
-    private String phoneNumber;
-    private String email;
-    private String photoUrl;
-    private String pinfl;
-    private Integer age;
-    private Gender gender;
-    private DocumentType documentType;
-    private LocalDate issueDate;
-    private LocalDate expiryDate;
-    private String citizenship;
-    private LocalDate deathDate;
+public record UserResponseDto(
+        // уникальный идентификатор пользователя
+        Long id,
+        // полное имя пользователя
+        String fullName,
+        // адрес проживания
+        String address,
+        // номер телефона
+        String phoneNumber,
+        // электронная почта
+        String email,
+        // ссылка на фотографию
+        String photoUrl,
+        // персональный идентификационный номер (14 символов)
+        String pinfl,
+        // возраст пользователя
+        Integer age,
+        // пол (мужской/женский)
+        Gender gender,
+        // тип документа (паспорт, id-карта и др.)
+        DocumentType documentType,
+        // дата выдачи документа
+        LocalDate issueDate,
+        // дата окончания срока действия документа
+        LocalDate expiryDate,
+        // гражданство
+        String citizenship,
+        // дата смерти (если применимо)
+        LocalDate deathDate
+) {
 }
