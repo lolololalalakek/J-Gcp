@@ -1,5 +1,7 @@
 package uz.javacourse.jgcp.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import uz.javacourse.jgcp.constant.enums.entity.DocumentType;
 import uz.javacourse.jgcp.constant.enums.entity.Gender;
 import uz.javacourse.jgcp.dto.request.UserRequestDto;
@@ -13,7 +15,7 @@ public interface UserService {
 
     UserResponseDto createUser(UserRequestDto requestDto);
 
-    List<UserResponseDto> getAllUsers();
+    Page<UserResponseDto> getAllUsers(Pageable pageable);
 
     UserResponseDto getUserById(Long id);
 

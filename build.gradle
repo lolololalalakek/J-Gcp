@@ -10,7 +10,7 @@ description = 'j-gcp'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -58,6 +58,9 @@ dependencies {
 
     // Testing
     testImplementation 'com.h2database:h2'
+
+
+    implementation 'org.springframework.kafka:spring-kafka'
 }
 
 tasks.named('test') {

@@ -2,6 +2,9 @@ package uz.javacourse.jgcp.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,8 +29,15 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<Page<UserResponseDto>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size) {
+        // ограничение: максимум 25 элементов на страницу
+        if (size > 25) {
+            size = 25;
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
     @PostMapping

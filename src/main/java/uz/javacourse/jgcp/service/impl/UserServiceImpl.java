@@ -1,7 +1,10 @@
 package uz.javacourse.jgcp.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.javacourse.jgcp.constant.enums.entity.DocumentType;
 import uz.javacourse.jgcp.constant.enums.entity.Gender;
 import uz.javacourse.jgcp.dto.request.UserRequestDto;
@@ -9,12 +12,12 @@ import uz.javacourse.jgcp.dto.response.MarkDeceasedResponseDto;
 import uz.javacourse.jgcp.dto.response.UserResponseDto;
 import uz.javacourse.jgcp.entity.User;
 import uz.javacourse.jgcp.exception.BusinessException;
-import uz.javacourse.jgcp.exception.ConflictException;
 import uz.javacourse.jgcp.exception.ResourceNotFoundException;
 import uz.javacourse.jgcp.exception.UserNotFoundException;
 import uz.javacourse.jgcp.mapper.UserMapper;
 import uz.javacourse.jgcp.repository.UserRepository;
 import uz.javacourse.jgcp.service.UserService;
+import uz.javacourse.jgcp.service.UserValidationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,54 +29,60 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserValidationService userValidationService;
 
     // создает нового пользователя в системе после проверки уникальности email и pinfl
     @Override
+    @Transactional
     public UserResponseDto createUser(UserRequestDto requestDto) {
-        validateUniqueness(requestDto);
+        userValidationService.validateUniqueness(requestDto);
 
         User user = userMapper.toEntity(requestDto);
         User savedUser = userRepository.save(user);
         return userMapper.toResponseDto(savedUser);
     }
 
-    // возвращает список всех пользователей из базы данных
+    // возвращает список всех пользователей из базы данных с пагинацией
     @Override
-    public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public Page<UserResponseDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+            .map(userMapper::toResponseDto);
     }
 
     // находит и возвращает пользователя по его уникальному идентификатору
     @Override
+    @Transactional(readOnly = true)
     public UserResponseDto getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
-        return userMapper.toResponseDto(user);
+        return userRepository.findById(id)
+            .map(this.userMapper::toResponseDto)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
     // находит и возвращает пользователя по его персональному идентификационному номеру (pinfl)
     @Override
+    @Transactional(readOnly = true)
     public UserResponseDto getUserByPinfl(String pinfl) {
-        User user = userRepository.findByPinfl(pinfl)
-                .orElseThrow(() -> new UserNotFoundException("pinfl", pinfl));
-        return userMapper.toResponseDto(user);
+        return userRepository.findByPinfl(pinfl)
+            .map(this.userMapper::toResponseDto)
+            .orElseThrow(() -> new UserNotFoundException("pinfl", pinfl));
     }
 
     // проверяет жив ли пользователь (deathDate == null означает что пользователь жив)
     @Override
+    @Transactional(readOnly = true)
     public boolean isUserAlive(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
         return user.getDeathDate() == null;
     }
 
     // отмечает пользователя как умершего, устанавливая дату смерти
     @Override
+    @Transactional
     public MarkDeceasedResponseDto markUserAsDeceased(Long id, LocalDate deathDate) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+            .orElseThrow(() -> new UserNotFoundException(id));
 
         if (user.getDeathDate() != null) {
             throw new BusinessException("User already marked as deceased");
@@ -86,130 +95,130 @@ public class UserServiceImpl implements UserService {
 
     // ищет пользователей по части имени (без учета регистра)
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> searchByName(String name) {
         return userRepository.findByFullNameContainingIgnoreCase(name).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает список всех живых пользователей
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getAllAliveUsers() {
         return userRepository.findByDeathDateIsNull().stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает список всех умерших пользователей
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getAllDeceasedUsers() {
         return userRepository.findByDeathDateIsNotNull().stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает количество живых пользователей
     @Override
+    @Transactional(readOnly = true)
     public long getAliveUsersCount() {
         return userRepository.countByDeathDateIsNull();
     }
 
     // возвращает количество умерших пользователей
     @Override
+    @Transactional(readOnly = true)
     public long getDeceasedUsersCount() {
         return userRepository.countByDeathDateIsNotNull();
     }
 
     // возвращает пользователей умерших в указанном периоде
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersDeceasedBetween(LocalDate start, LocalDate end) {
         return userRepository.findByDeathDateBetween(start, end).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает пользователей с истекшими документами
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersWithExpiredDocuments() {
         return userRepository.findByExpiryDateBefore(LocalDate.now()).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает пользователей чьи документы истекают в указанном периоде
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersWithDocumentsExpiringBetween(LocalDate start, LocalDate end) {
         return userRepository.findByExpiryDateBetween(start, end).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает пользователей по типу документа
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersByDocumentType(DocumentType documentType) {
         return userRepository.findByDocumentType(documentType).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает пользователей по полу
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersByGender(Gender gender) {
         return userRepository.findByGender(gender).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает количество пользователей по полу
     @Override
+    @Transactional(readOnly = true)
     public long getUsersCountByGender(Gender gender) {
         return userRepository.countByGender(gender);
     }
 
     // возвращает пользователей по гражданству
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersByCitizenship(String citizenship) {
         return userRepository.findByCitizenship(citizenship).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает пользователей в указанном возрастном диапазоне
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersByAgeRange(Integer minAge, Integer maxAge) {
         return userRepository.findByAgeBetween(minAge, maxAge).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает живых пользователей с истекшими документами
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getAliveUsersWithExpiredDocuments() {
         return userRepository.findByDeathDateIsNullAndExpiryDateBefore(LocalDate.now()).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 
     // возвращает пользователей по полу и возрастному диапазону
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getUsersByGenderAndAgeRange(Gender gender, Integer minAge, Integer maxAge) {
         return userRepository.findByGenderAndAgeBetween(gender, minAge, maxAge).stream()
-                .map(userMapper::toResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    // проверяет уникальность email, pinfl и номера телефона перед созданием нового пользователя
-    private void validateUniqueness(UserRequestDto requestDto) {
-        if (userRepository.existsByPinfl(requestDto.pinfl())) {
-            throw new ConflictException("User with this PINFL already exists");
-        }
-
-        if (userRepository.existsByEmail(requestDto.email())) {
-            throw new ConflictException("User with this email already exists");
-        }
-
-        if (userRepository.existsByPhoneNumber(requestDto.phoneNumber())) {
-            throw new ConflictException("User with this phone number already exists");
-        }
+            .map(userMapper::toResponseDto)
+            .collect(Collectors.toList());
     }
 }

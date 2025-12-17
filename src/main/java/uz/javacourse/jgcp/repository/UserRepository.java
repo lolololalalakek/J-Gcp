@@ -1,5 +1,8 @@
 package uz.javacourse.jgcp.repository;
 
+import jakarta.annotation.Nonnull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import uz.javacourse.jgcp.constant.enums.entity.DocumentType;
@@ -12,6 +15,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    // пагинация для получения всех пользователей
+    @Nonnull
+    Page<User> findAll(@Nonnull Pageable pageable);
 
     // основные методы поиска
     Optional<User> findByPinfl(String pinfl);

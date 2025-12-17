@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis_server
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass secure_redis_pass --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: always
+  redis-commander:
+    image: ghcr.io/joeferner/redis-commander:latest
+    container_name: redis_commander_ui
+    environment:
+      REDIS_HOSTS: local_redis:redis:6379
+      REDIS_PASSWORD: secure_redis_pass
+      REDIS_CLUSTERS: default
+    ports:
+      - '8086:8086'
+    depends_on:
+      - redis
+    restart: always
+volumes:
+  redis_data:
