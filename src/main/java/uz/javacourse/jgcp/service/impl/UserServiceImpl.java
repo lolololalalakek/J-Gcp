@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import uz.javacourse.jgcp.constant.enums.DocumentType;
 import uz.javacourse.jgcp.constant.enums.Gender;
 import uz.javacourse.jgcp.dto.request.UserRequestDto;
@@ -24,13 +23,11 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserValidationService userValidationService;
-    private final TransactionTemplate transactionTemplate;
 
     // создает нового пользователя в системе после проверки уникальности email и pinfl
     @Override
@@ -38,8 +35,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(UserRequestDto requestDto) {
         userValidationService.validateUniqueness(requestDto);
         User user = userMapper.toEntity(requestDto);
-
-        User savedUser = transactionTemplate.execute(status -> userRepository.save(user));
+        User savedUser = userRepository.save(user);
         return userMapper.toResponseDto(savedUser);
     }
 
@@ -86,17 +82,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public MarkDeceasedResponseDto markUserAsDeceased(Long id, LocalDate deathDate) {
-        User updatedUser = transactionTemplate.execute(status -> {
-            User user = userRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException(id));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
 
-            if (user.getDeathDate() != null) {
-                throw new BusinessException("User already marked as deceased");
-            }
+        if (user.getDeathDate() != null) {
+            throw new BusinessException("User already marked as deceased");
+        }
 
-            user.setDeathDate(deathDate);
-            return userRepository.save(user);
-        });
+        user.setDeathDate(deathDate);
+        User updatedUser = userRepository.save(user);
 
         return userMapper.toMarkDeceasedResponseDto(updatedUser);
     }
