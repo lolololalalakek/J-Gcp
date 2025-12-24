@@ -1,4 +1,4 @@
-package uz.javacourse.jgcp.constant.enums.entity;
+package uz.javacourse.jgcp.constant.enums;
 
 public enum DocumentType {
     PASSPORT,

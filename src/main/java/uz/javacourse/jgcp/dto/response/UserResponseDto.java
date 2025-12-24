@@ -1,8 +1,8 @@
 package uz.javacourse.jgcp.dto.response;
 
 import lombok.Builder;
-import uz.javacourse.jgcp.constant.enums.entity.DocumentType;
-import uz.javacourse.jgcp.constant.enums.entity.Gender;
+import uz.javacourse.jgcp.constant.enums.DocumentType;
+import uz.javacourse.jgcp.constant.enums.Gender;
 
 import java.time.LocalDate;
 
