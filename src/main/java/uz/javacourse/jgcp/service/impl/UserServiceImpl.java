@@ -26,7 +26,7 @@ import java.time.LocalDate;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+        private final UserMapper userMapper;
     private final UserValidationService userValidationService;
 
     // создает нового пользователя в системе после проверки уникальности email и pinfl
@@ -40,12 +40,11 @@ public class UserServiceImpl implements UserService {
     }
 
     // возвращает список всех пользователей из базы данных с пагинацией
+    // используется DTO projection для оптимизации - без загрузки Entity и маппинга
     @Override
     public Slice<UserResponseDto> getAllUsers(Pageable pageable) {
-        // выполняем запрос в базу данных
-        Slice<User> users = userRepository.findAllBy(pageable);
-        // преобразуем каждого user в dto и возвращаем slice
-        return users.map(userMapper::toResponseDto);
+        // DTO projection возвращает готовый DTO напрямую из запроса - быстрее и меньше нагрузка на память
+        return userRepository.getAllUsers(pageable);
     }
 
     // находит и возвращает пользователя по его уникальному идентификатору

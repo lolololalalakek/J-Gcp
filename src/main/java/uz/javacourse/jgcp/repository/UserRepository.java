@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.javacourse.jgcp.constant.enums.DocumentType;
 import uz.javacourse.jgcp.constant.enums.Gender;
+import uz.javacourse.jgcp.dto.response.UserResponseDto;
 import uz.javacourse.jgcp.entity.User;
 
 import java.time.LocalDate;
@@ -94,8 +95,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                          @Param("maxAge") Integer maxAge,
                                          Pageable pageable);
 
-    // метод для получения всех пользователей с пагинацией
-    Slice<User> findAllBy(Pageable pageable);
+    // DTO projection - быстрее, выбирает только нужные поля без загрузки Entity
+    @Query("""
+        SELECT new uz.javacourse.jgcp.dto.response.UserResponseDto(
+            u.id, u.fullName, u.address, u.phoneNumber, u.email, u.photoUrl,
+            u.pinfl, u.age, u.gender, u.documentType, u.issueDate,
+            u.expiryDate, u.citizenship, u.deathDate
+        )
+        FROM User u
+    """)
+    Slice<UserResponseDto> getAllUsers(Pageable pageable);
 
     //  KEYSET (CURSOR-BASED) ПАГИНАЦИЯ
     // Быстрая пагинация через afterId - не зависит от глубины страницы
